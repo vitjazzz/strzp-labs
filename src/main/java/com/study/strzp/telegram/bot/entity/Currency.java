@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class Currency {
 
-    private String name;
+    private String ccy;
 
     private String buy;
 
