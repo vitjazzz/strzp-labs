@@ -1,6 +1,7 @@
 package com.study.strzp.telegram.bot.service.impl;
 
 import com.study.strzp.telegram.bot.service.CommandService;
+import com.study.strzp.telegram.bot.util.MessageFormatter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,6 +24,7 @@ public class CurrencyServiceImpl implements CommandService {
 
 
         SendMessage sendMessage = new SendMessage();
+        MessageFormatter.addButtons(sendMessage);
         sendMessage.enableMarkdown(true);
         sendMessage.enableHtml(true);
         sendMessage.setChatId(update.getCallbackQuery().getFrom().getId().toString());

@@ -10,6 +10,6 @@ public class DefaultMessageHandler {
     public SendMessage handle(String chatId) {
         return new SendMessage()
                 .setChatId(chatId)
-                .setText("Привет! Я умею показывать актуальный курс валют ПриватБанка. Выберите нужный пункт из списка.");
+                .setText("Ne ponimau.");
     }
 }
