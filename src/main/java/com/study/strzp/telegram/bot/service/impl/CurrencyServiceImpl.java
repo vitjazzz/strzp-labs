@@ -22,6 +22,7 @@ public class CurrencyServiceImpl implements CommandService {
 
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
+        sendMessage.enableHtml(true);
         sendMessage.setChatId(update.getCallbackQuery().getFrom().getId().toString());
         sendMessage.setText("Наличный курс ПриватБанка (в отделениях):\n" +
                 " \n" +
