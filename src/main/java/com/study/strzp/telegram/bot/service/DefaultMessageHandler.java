@@ -10,6 +10,6 @@ public class DefaultMessageHandler {
     public SendMessage handle(String chatId) {
         return new SendMessage()
                 .setChatId(chatId)
-                .setText("Ne ponimau.");
+                .setText("Извините, я Вас не понимаю.");
     }
 }

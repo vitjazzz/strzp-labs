@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Qualifier("startService")
 public class StartService implements CommandService {
 
-    @Override
     public SendMessage handle(Update update) {
         Message message = update.getMessage();
         SendMessage sendMessage = new SendMessage();
