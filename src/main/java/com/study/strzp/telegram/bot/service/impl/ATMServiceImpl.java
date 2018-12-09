@@ -2,6 +2,7 @@ package com.study.strzp.telegram.bot.service.impl;
 
 import com.study.strzp.telegram.bot.service.CommandService;
 import com.study.strzp.telegram.bot.util.MessageFormatter;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,8 @@ public class ATMServiceImpl implements CommandService {
                     "https://geocode-maps.yandex.ru/1.x/?geocode=" + location.getLongitude() + "," + location.getLongitude() + "&kind=house&format=json",
                     String.class
             );
+            JSONObject obj = new JSONObject(res);
+//            obj.getJSONObject("response")
         } catch (Exception e) {
             e.printStackTrace();
         }
