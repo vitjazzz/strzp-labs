@@ -1,11 +1,13 @@
 package com.study.strzp.telegram.bot.service.impl;
 
 import com.study.strzp.telegram.bot.service.CommandService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Service
+@Qualifier("currencyService")
 public class CurrencyServiceImpl implements CommandService {
 
     public SendMessage handle(Update update) {
