@@ -1,30 +1,24 @@
 package com.study.strzp.telegram.bot.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.strzp.telegram.bot.entity.Currency;
 import com.study.strzp.telegram.bot.service.CommandService;
 import com.study.strzp.telegram.bot.util.MessageFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.json.JacksonJsonParser;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import static java.lang.Double.parseDouble;
+import static java.lang.String.format;
 
 @Service
 @Qualifier("currencyService")
 public class CurrencyServiceImpl implements CommandService {
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    RestTemplate restTemplate;
 
     public CurrencyServiceImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -32,20 +26,8 @@ public class CurrencyServiceImpl implements CommandService {
 
     public SendMessage handle(Update update) {
 
-        String bucksOfficeSell;
-        String bucksOfficeBuy;
-        String euroOfficeSell = "";
-        String euroOfficeBuy = "";
-        String bucksOnlineSell = "";
-        String bucksOnlineBuy = "";
-        String euroOnlineSell = "";
-        String euroOnlineBuy = "";
-
-        List<Currency> urlResponse = getUrlResponse("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5");
-
-        bucksOfficeBuy = urlResponse.get(0).getBuy();
-        bucksOfficeSell = urlResponse.get(0).getSale();
-
+        Currency[] officeExchange = getCurrenciesResponse("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5");
+        Currency[] onlineExchange = getCurrenciesResponse("https://api.privatbank.ua/p24api/pubinfo?exchange&json&coursid=11");
 
         SendMessage sendMessage = new SendMessage();
         MessageFormatter.addButtons(sendMessage);
@@ -55,32 +37,27 @@ public class CurrencyServiceImpl implements CommandService {
         sendMessage.setText("Наличный курс ПриватБанка (в отделениях):\n" +
                 " \n" +
                 "<b>\uD83D\uDCB5USD (Доллар США)</b>\n" +
-                "Продажа:  <b>" + bucksOfficeSell + " грн.</b>\n" +
-                "Покупка:  <b>" + bucksOfficeBuy + " грн.</b>\n" +
+                "Продажа:  <b>" + format("%.3f", parseDouble(officeExchange[0].getSale())) + " грн.</b>\n" +
+                "Покупка:  <b>" + format("%.3f", parseDouble(officeExchange[0].getBuy())) + " грн.</b>\n" +
                 " \n" +
                 "<b>\uD83D\uDCB6EUR (Евро)</b>\n" +
-                "Продажа:  <b>" + euroOfficeSell + " грн.</b>\n" +
-                "Покупка:  <b>" + euroOfficeBuy + " грн.</b>\n" +
+                "Продажа:  <b>" + format("%.3f", parseDouble(officeExchange[1].getSale())) + " грн.</b>\n" +
+                "Покупка:  <b>" + format("%.3f", parseDouble(officeExchange[1].getBuy())) + " грн.</b>\n" +
                 " \n" +
                 "Безналичный курс ПриватБанка (конвертация по картам, Приват24, пополнение вкладов):\n" +
                 " \n" +
                 "<b>\uD83D\uDCB5USD (Доллар США)</b>\n" +
-                "Продажа:  <b>" + bucksOnlineSell + " грн.</b>\n" +
-                "Покупка:  <b>" + bucksOnlineBuy + " грн.</b>\n" +
+                "Продажа:  <b>" + format("%.3f", parseDouble(onlineExchange[0].getSale())) + " грн.</b>\n" +
+                "Покупка:  <b>" + format("%.3f", parseDouble(onlineExchange[0].getBuy())) + " грн.</b>\n" +
                 " \n" +
                 "<b>\uD83D\uDCB6EUR (Евро)</b>\n" +
-                "Продажа:  <b>" + euroOnlineSell + " грн.</b>\n" +
-                "Покупка:  <b>" + euroOnlineBuy + " грн.</b>");
+                "Продажа:  <b>" + format("%.3f", parseDouble(onlineExchange[1].getSale())) + " грн.</b>\n" +
+                "Покупка:  <b>" + format("%.3f", parseDouble(onlineExchange[1].getBuy())) + " грн.</b>");
 
         return sendMessage;
     }
 
-
-    private List<Currency> getUrlResponse(String url) {
-
-
-        return Collections.singletonList(restTemplate.getForObject(url, Currency.class));
-
+    private Currency[] getCurrenciesResponse(String url) {
+        return restTemplate.getForObject(url, Currency[].class);
     }
-
 }
