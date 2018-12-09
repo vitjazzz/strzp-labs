@@ -1,5 +1,7 @@
 package com.study.strzp.telegram.bot;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -9,10 +11,17 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
+import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.List;
 
 public class MyTestBot extends TelegramLongPollingBot {
+
+    @Value("${telegram.botName}")
+    String botName;
+
+    @Value("${telegram.token}")
+    String token;
 
     public void onUpdateReceived(Update update) {
         String message = update.getMessage().getText();
@@ -30,20 +39,13 @@ public class MyTestBot extends TelegramLongPollingBot {
 
 
     public String getBotUsername() {
-        return "luchshij_bot_dlja_sdachi_lab_bot";
+        return botName;
     }
 
     public String getBotToken() {
-        return "710382160:AAGbQ_Tqr5BfiI4tngnLxuYk04xlJ3Henr4";
+        return token;
     }
 
-    public static void main(String[] args) {
-        ApiContextInitializer.init();
-        TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
-        try {
-            telegramBotsApi.registerBot(new MyTestBot());
-        } catch (TelegramApiRequestException e) {
-            e.printStackTrace();
-        }
-    }
+
+
 }
