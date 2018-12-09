@@ -17,6 +17,7 @@ import java.net.*;
 @Qualifier("atmService")
 public class ATMServiceImpl implements CommandService {
     @Autowired
+    @Qualifier("restTemplateProxy")
     RestTemplate restTemplate;
 
     @Override

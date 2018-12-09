@@ -28,12 +28,17 @@ public class TelegramBotApplication {
     }
 
     @Bean
-    @Primary
-    RestTemplate restTemplate() {
+    RestTemplate restTemplateProxy() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("46.255.15.51", 33907));
         requestFactory.setProxy(proxy);
         return new RestTemplate(requestFactory);
+    }
+
+    @Bean
+    @Primary
+    RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     @PostConstruct
