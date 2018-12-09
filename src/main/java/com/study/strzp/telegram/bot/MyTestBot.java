@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class MyTestBot extends TelegramLongPollingBot {
 
     @Autowired
-    @Qualifier("startService")
+    @Qualifier("startServiceImpl")
     CommandService startService;
 
     @Autowired

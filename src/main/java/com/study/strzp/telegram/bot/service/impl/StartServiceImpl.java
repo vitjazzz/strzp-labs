@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Service
 @Qualifier("startService")
-public class StartService implements CommandService {
+public class StartServiceImpl implements CommandService {
 
     public SendMessage handle(Update update) {
         Message message = update.getMessage();
