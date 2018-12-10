@@ -1,5 +1,6 @@
 package com.study.strzp.telegram.bot;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -23,12 +24,8 @@ public class TelegramBotApplication {
     }
 
     @Bean
-    TelegramLongPollingBot telegramBot() {
-        return new MyTestBot();
-    }
-
-    @Bean
-    RestTemplate restTemplateProxy() {
+    @Qualifier("proxyRestTemplate")
+    RestTemplate proxyRestTemplate() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("46.255.15.51", 33907));
         requestFactory.setProxy(proxy);
@@ -36,9 +33,13 @@ public class TelegramBotApplication {
     }
 
     @Bean
-    @Primary
-    RestTemplate restTemplate() {
+    @Qualifier("restTemplate")RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    @Bean
+    TelegramLongPollingBot telegramBot(){
+        return new MyTestBot();
     }
 
     @PostConstruct
