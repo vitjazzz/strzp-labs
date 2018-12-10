@@ -1,6 +1,7 @@
 package com.study.strzp.telegram.bot;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -23,17 +24,24 @@ public class TelegramBotApplication {
         SpringApplication.run(TelegramBotApplication.class, args);
     }
 
+    @Value("${proxy.host:46.255.15.51}")
+    String proxyHost;
+
+    @Value("${proxy.port:33907}")
+    int proxyPort;
+
     @Bean
     @Qualifier("proxyRestTemplate")
     RestTemplate proxyRestTemplate() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("46.255.15.51", 33907));
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
         requestFactory.setProxy(proxy);
         return new RestTemplate(requestFactory);
     }
 
     @Bean
-    @Qualifier("restTemplate")RestTemplate restTemplate() {
+    @Qualifier("restTemplate")
+    RestTemplate restTemplate() {
         return new RestTemplate();
     }
 

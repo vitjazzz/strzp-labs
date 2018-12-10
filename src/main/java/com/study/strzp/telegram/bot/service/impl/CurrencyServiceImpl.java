@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
@@ -25,7 +27,7 @@ public class CurrencyServiceImpl implements CommandService {
         this.restTemplate = restTemplate;
     }
 
-    public SendMessage handle(Update update) {
+    public void handle(Update update, AbsSender sender) throws TelegramApiException {
 
         Currency[] officeExchange = getCurrenciesResponse("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5");
         Currency[] onlineExchange = getCurrenciesResponse("https://api.privatbank.ua/p24api/pubinfo?exchange&json&coursid=11");
@@ -55,7 +57,7 @@ public class CurrencyServiceImpl implements CommandService {
                 "Продажа:  <b>" + format("%.3f", parseDouble(onlineExchange[1].getSale())) + " грн.</b>\n" +
                 "Покупка:  <b>" + format("%.3f", parseDouble(onlineExchange[1].getBuy())) + " грн.</b>");
 
-        return sendMessage;
+        sender.execute(sendMessage);
     }
 
     private Currency[] getCurrenciesResponse(String url) {

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -17,6 +19,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,38 +53,40 @@ public class MyTestBot extends TelegramLongPollingBot {
         executorService.execute(() -> {
             CallbackQuery callback = update.getCallbackQuery();
             Message message = update.getMessage();
-            SendMessage replyMessage = new SendMessage();
-            if (callback != null) {
-                switch (callback.getData()) {
-                    case "/currency":
-                        replyMessage = currencyService.handle(update);
-                        break;
-                    case "/atm":
-                       replyMessage.setChatId(callback.getFrom().getId().toString()).setText("Пожалуйста, пришлите мне свою локацию.");
-                        break;
-                    default:
-                        replyMessage = defaultMessageHandler.handle(callback.getFrom().getId().toString());
-                        break;
-                }
-            } else if (message != null) {
-                if (message.getLocation() != null) {
-                    replyMessage = atmService.handle(update);
-                } else if (message.getText() != null) {
-                    switch (message.getText()) {
-                        case "/start":
-                            replyMessage = startService.handle(update);
+            try{
+                if (callback != null) {
+                    AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery().setCallbackQueryId(callback.getId());
+                    switch (callback.getData()) {
+                        case "/currency":
+                            currencyService.handle(update, this);
+                            break;
+                        case "/atm":
+                            execute(new SendMessage()
+                                    .setChatId(callback.getFrom().getId().toString())
+                                    .setText("Пожалуйста, пришлите мне свою локацию."));
                             break;
                         default:
-                            replyMessage = defaultMessageHandler.handle(message.getChatId().toString());
+                            defaultMessageHandler.handle(callback.getFrom().getId().toString(), this);
                             break;
                     }
-                }
-            } else
-                return;
-            try {
-                execute(replyMessage);
-            } catch (TelegramApiException e) {
-                System.out.println("Exception: " + e.toString());
+                    execute(answerCallbackQuery);
+                } else if (message != null) {
+                    if (message.getLocation() != null) {
+                        atmService.handle(update, this);
+                    } else if (message.getText() != null) {
+                        switch (message.getText()) {
+                            case "/start":
+                                startService.handle(update, this);
+                                break;
+                            default:
+                                defaultMessageHandler.handle(message.getChatId().toString(), this);
+                                break;
+                        }
+                    }
+                } else
+                    return;
+            } catch (Exception e){
+                e.printStackTrace();
             }
         });
     }

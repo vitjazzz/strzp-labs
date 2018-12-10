@@ -12,6 +12,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendLocation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +30,8 @@ public class ATMServiceImpl implements CommandService {
     RestTemplate restTemplate;
 
     @Override
-    public SendMessage handle(Update update) {
+    public void handle(Update update, AbsSender sender) throws TelegramApiException {
         SendMessage sendMessage = new SendMessage();
-        SendLocation sendLocation = new SendLocation();
-        sendLocation.setChatId(update.getMessage().getChatId());
         sendMessage.setChatId(update.getMessage().getChatId());
         sendMessage.enableHtml(true);
         MessageFormatter.addButtons(sendMessage);
@@ -54,10 +54,11 @@ public class ATMServiceImpl implements CommandService {
                     .getJSONArray("featureMember").getJSONObject(0)
                     .getJSONObject("GeoObject").getString("name");
         } catch (Exception e) {
-            return sendMessage.setText("\"<b>Не удалось получить Ваше местоположение.</b>\"");
+            sender.execute(sendMessage.setText("\"<b>Не удалось получить Ваше местоположение.</b>\""));
+            return;
         }
 
-        int streetNum = Integer.getInteger(address.replaceAll("[^0-9]", ""));
+        int streetNum = Integer.valueOf(address.replaceAll("[^0-9]", ""));
         city = city.replaceAll(",.*", "");
         address = address.replaceAll(",.*", "").
                 replaceAll(" улица", "").
@@ -84,25 +85,31 @@ public class ATMServiceImpl implements CommandService {
                     tmpAddr = tmpAddr.replaceAll("[^0-9]", "");
                     addresses.add(Integer.valueOf(tmpAddr));
                 }
-                String atmAddress = devices.getJSONObject(searchNearest(streetNum, addresses)).getString("fullAddressRu");
-                String atmPlace = devices.getJSONObject(searchNearest(streetNum, addresses)).getString("placeRu");
-                String atmLatitude = devices.getJSONObject(searchNearest(streetNum, addresses)).getString("latitude");
-                String atmLongitude = devices.getJSONObject(searchNearest(streetNum, addresses)).getString("longitude");
+                int indexOfClosestAddr = searchNearest(streetNum, addresses);
+                String atmAddress = devices.getJSONObject(indexOfClosestAddr).getString("fullAddressRu");
+                String atmPlace = devices.getJSONObject(indexOfClosestAddr).getString("placeRu");
+                String atmLatitude = devices.getJSONObject(indexOfClosestAddr).getString("latitude");
+                String atmLongitude = devices.getJSONObject(indexOfClosestAddr).getString("longitude");
 
                 sendMessage.setText("<b>Ближайший к Вам банкомат находится по адресу:</b> " + atmAddress + " (" + atmPlace + ")");
+
+                SendLocation sendLocation = new SendLocation();
+                sendLocation.setChatId(update.getMessage().getChatId());
                 sendLocation.setLatitude(Float.valueOf(atmLatitude)).setLongitude(Float.valueOf(atmLongitude));
+
+                sender.execute(sendMessage);
+                sender.execute(sendLocation);
             }
         } catch (Exception e) {
-            return sendMessage.setText("\"<b>Не удалось найти банкоматы.</b>\"");
+            sender.execute(sendMessage.setText("\"<b>Не удалось найти банкоматы.</b>\""));
         }
-        return null;
     }
 
     private int searchNearest(int value, List<Integer> houseNumbers) {
         int lastKey = 0;
         int lastDif = 0;
         int dif;
-        for (int i : houseNumbers) {
+        for (int i = 0; i < houseNumbers.size(); i++) {
             if (houseNumbers.get(i) == value) {
                 return i;
             }
