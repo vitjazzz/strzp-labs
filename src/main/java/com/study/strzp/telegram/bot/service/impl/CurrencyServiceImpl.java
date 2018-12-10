@@ -18,6 +18,7 @@ import static java.lang.String.format;
 public class CurrencyServiceImpl implements CommandService {
 
     @Autowired
+    @Qualifier("restTemplate")
     RestTemplate restTemplate;
 
     public CurrencyServiceImpl(RestTemplate restTemplate) {
