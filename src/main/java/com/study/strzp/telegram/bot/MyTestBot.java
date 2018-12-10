@@ -50,14 +50,15 @@ public class MyTestBot extends TelegramLongPollingBot {
         executorService.execute(() -> {
             CallbackQuery callback = update.getCallbackQuery();
             Message message = update.getMessage();
-            SendMessage replyMessage = null;
+            SendMessage replyMessage = new SendMessage();
             if (callback != null) {
                 switch (callback.getData()) {
                     case "/currency":
                         replyMessage = currencyService.handle(update);
                         break;
                     case "/atm":
-                        replyMessage = new SendMessage().setChatId(message.getChatId()).setText("Пожалуйста, пришлите мне свою локацию.");
+                       replyMessage.setChatId(callback.getFrom().getId().toString()).setText("Пожалуйста, пришлите мне свою локацию.");
+                        break;
                     default:
                         replyMessage = defaultMessageHandler.handle(callback.getFrom().getId().toString());
                         break;
