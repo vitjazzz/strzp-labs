@@ -1,11 +1,9 @@
-package com.study.strzp.telegram.bot;
+package com.study.strzp.telegram.bot.config;
 
+import com.study.strzp.telegram.bot.MyTestBot;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -17,12 +15,7 @@ import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
-@SpringBootApplication
-public class TelegramBotApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(TelegramBotApplication.class, args);
-    }
+public class StrzpConfiguration {
 
     @Value("${proxy.host:46.255.15.51}")
     String proxyHost;
