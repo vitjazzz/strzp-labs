@@ -1,15 +1,22 @@
 package com.telegram.cvetochek.data;
 
+import lombok.Getter;
+
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+@Getter
 public class DelayedNotification implements Delayed {
 
     private final long nextNotification;
+    private final String userId;
+//    private final String previousKey;
 
 
-    public DelayedNotification(long nextNotification) {
+    public DelayedNotification(long nextNotification, String userId) {
         this.nextNotification = nextNotification;
+        this.userId = userId;
+//        this.previousKey = previousKey;
     }
 
     @Override
